@@ -307,9 +307,9 @@
 
 </style>
 <script>
-/* 缓存破坏 v24:从前进/后退缓存(bfcache)恢复的旧页面直接整页重载拿新版;
+/* 缓存破坏 v25:从前进/后退缓存(bfcache)恢复的旧页面直接整页重载拿新版;
    本页 HTML 也已声明 no-store,字体地址带 ?v=19,三层一起防 WebView 吃旧版。 */
-window.__BUILD_VER__='v24';
+window.__BUILD_VER__='v25';
 window.addEventListener('pageshow',function(e){
   if(e && e.persisted){ try{ window.location.reload(); }catch(err){} }
 });
@@ -378,7 +378,7 @@ window.addEventListener('pageshow',function(e){
        在此之前开始界面的按钮保持 disabled 置灰,点了也不会有反应落空 -->
   <div id="loadscreen" role="status" aria-label="加载中">
     <div class="loadpanel">
-      <div class="kicker">PIXEL STRIKE · v24</div>
+      <div class="kicker">PIXEL STRIKE · v25</div>
       <div class="load-title">加载中<span class="dots"></span></div>
       <p class="load-note">正在生成贴图与敌人模型、准备武器数据并预热第一帧画面。慢机上可能要等几秒到十几秒，进度走完、按钮亮起后再点「进入战场」。</p>
       <div class="loadbar"><i id="loadfill"></i></div>
@@ -390,9 +390,9 @@ window.addEventListener('pageshow',function(e){
   <div class="screen" id="startscreen">
    <div class="screenwrap">
     <div class="panel">
-      <div class="kicker">TACTICAL PIXEL FPS · FRAMEWORK v24</div>
+      <div class="kicker">TACTICAL PIXEL FPS · FRAMEWORK v25</div>
       <h1>像素射击<em>框架</em></h1>
-      <div class="ver-badge" id="verBadge" aria-label="当前版本 v24"><span class="v">v24</span><span class="t">当前版本 v24<small>反馈时报这个号 · 看不到 v24 就是还在看旧缓存</small></span></div>
+      <div class="ver-badge" id="verBadge" aria-label="当前版本 v25"><span class="v">v25</span><span class="t">当前版本 v25<small>反馈时报这个号 · 看不到 v25 就是还在看旧缓存</small></span></div>
       <p class="sub">第一人称射击，照着使命召唤手游的持枪动作做的三把枪：枪很大、居中竖持——枪托在画面下方正中，枪身从下往上竖着占满画面中部，只略带倾斜，枪管轴线从下方正中直指准心，枪口朝上前方对准心；右手握握把在机匣右侧、左手托护木，双手都看得见。这一版把枪层和游戏画面统一到同一个坐标系（之前两套坐标对不上，枪在右下、曳光却从右上飞），枪口火光和曳光都从上方真实枪口出发、连到准心命中点；换弹是分段真动作——步枪整枪向一侧翻转、左手拔匣装匣，右手拉动枪机，手枪卸匣装匣后拉套筒，霰弹一发一发往弹仓里压弹、最后泵动上膛，翻枪归翻枪，锚点始终居中，声音和手对得上；切枪时新枪抬进视野会先侧倾展示一下整侧枪身，像检视一样，再回落到持枪位，全程不能开火也不能换弹，手枪最快、步枪居中、霰弹最慢；机瞄时准星尖压到画面正中心。规则还是往硬核里做：没有自动回血，打中会流血，换弹会丢掉弹匣里剩下的子弹，枪会卡壳，跑累了枪口会飘。活着清完一波，才有下一波。手机上横屏双拇指操作：左摇杆走位、右手滑屏瞄准、大按钮开火，惩罚都留着，但不往死里压——换弹只慢一点、疾跑不费多少体力、震屏也收着来。</p>
       <div class="grid">
         <div class="card">
@@ -459,7 +459,7 @@ window.addEventListener('pageshow',function(e){
       </div>
       <div class="btnrow">
         <button class="btn" id="btnStart" disabled>进入战场</button>
-        <button id="btnFresh" type="button" disabled>↻ 不是 v24？点这里强制刷新最新版</button>
+        <button id="btnFresh" type="button" disabled>↻ 不是 v25？点这里强制刷新最新版</button>
         <span class="note desktop-only">点击后锁定鼠标视角 · 耳机体验更佳</span>
         <span class="note mobile-only">点「进入战场」直接开打，不用锁鼠标 · 建议横屏，双手握持</span>
       </div>
@@ -1086,7 +1086,7 @@ function freshPlayer(){
     turnSway:0, lastDirForSway:-Math.PI/2, strafeLean:0, adsBlend:0,
     /* 投掷物手持:heldTac -1=拿枪,0-3=手里拿着 TAC_DEFS[heldTac];throwT 抛出动画计时,pendingTac 切投掷物中 */
     heldTac:-1, throwT:0, throwPend:'', throwSpawned:true, pendingTac:-1,
-    lastShot:-9, triggerHeld:false, ads:false, crouch:false, crouchHold:false, crouchTog:false, wHoldT:0, recoil:0, spreadBloom:0,
+    lastShot:-9, triggerHeld:false, ads:false, crouch:false, crouchHold:false, crouchTog:false, wHoldT:0, recoil:0, recoilV:0, spreadBloom:0,
     bobT:0, sway:0, dead:false, shots:0, hits:0, headshots:0, kills:0, score:0,
     dmgFlash:0, hurtDir:0, hurtT:0, suppress:0, stepT:0, muzzle:0, shellT:0 };
 }
@@ -1175,8 +1175,8 @@ function render(){
      → 行距 dist=0.46*H/(y-horizon),地板与墙脚在同一深度上接缝。
      每像素开销约 15 次运算,地板约 26 万像素 + 天花板约 6.5 万,PC Chrome 没问题。 */
   var texF=TEX[6], texC=TEX[7], texW=TEX[11];
-  /* 集装箱通道木地板区域(世界坐标):横向通道 row11 cols8-11,纵向通道 col4 rows16-18 */
-  var TUNNEL_RECTS=[{x0:8,y0:11,x1:12,y1:12},{x0:4,y0:16,x1:5,y1:19}];
+  /* 集装箱通道木地板区域(世界坐标):横向通道 row9 cols9-12,纵向通道 col6 rows13-15 */
+  var TUNNEL_RECTS=[{x0:9,y0:9,x1:13,y1:10},{x0:6,y0:13,x1:7,y1:16}];
   var angL=P.dir-fov/2, angR=P.dir+fov/2;
   var cL=Math.cos(angL), sL=Math.sin(angL), cR=Math.cos(angR), sR=Math.sin(angR);
   var supDim = P.suppress>0 ? (1-P.suppress*.25) : 1;
@@ -1191,7 +1191,7 @@ function render(){
     sh2=clamp(1-dist/16,.12,.95)*supDim;
     var rowBase=yy2*W;
     for(xx2=0;xx2<W;xx2++){
-      var inTun=(fx>=8&&fx<12&&fy>=11&&fy<12)||(fx>=4&&fx<5&&fy>=16&&fy<19);
+      var inTun=(fx>=9&&fx<13&&fy>=9&&fy<10)||(fx>=6&&fx<7&&fy>=13&&fy<16);
       var td=inTun?texW.data:texF.data;
       tx2=(Math.floor(fx*128))&127; ty2=(Math.floor(fy*128))&127;
       si2=(ty2*128+tx2)*4;
@@ -1242,11 +1242,10 @@ function render(){
     }
   }
   ctx.putImageData(frame,0,0);
-  renderSprites(fov,horizon);
+  renderWorldEntities(fov,horizon);
   renderParticles(fov,horizon);
   renderTracers(fov,horizon);
   renderSmokes(fov,horizon);
-  renderProps(fov,horizon);
   renderFires(fov,horizon);
   renderProjectiles(fov,horizon);
   renderWeapon();
@@ -1259,49 +1258,93 @@ function project(x,y,fov){
   var sx = W/2 + (Math.tan(rel)/halfTan)*(W/2);
   return {sx:sx, dist:dist, rel:rel, behind: Math.abs(rel)>fov*.85};
 }
-function renderSprites(fov,horizon){
-  /* 活着的画正常,正在倒地的(死后 0.8 秒内)画倒地过程:压扁 + 向一侧倾倒 + 渐隐 */
-  var list = enemies.filter(function(e){return e.hp>0 || (e.deathT!==undefined && e.deathT<0.8);}).sort(function(a,b){
-    return dist2(b.x,b.y,P.x,P.y)-dist2(a.x,a.y,P.x,P.y); });
+/* 世界实体统一景深排序:敌人、交通锥、叉车进同一个复用数组,按距玩家远近排序(Painter's Algorithm),
+   远的先画、近的后画,遮挡关系一次算对;_bb 只建一次,每帧只复位长度,
+   不再每帧 enemies.filter(...).sort(...) 分配新数组触发 GC */
+var _bb=[];
+function _bbByDist(a,b){ return b.d-a.d; }
+function renderWorldEntities(fov,horizon){
+  if(!CONE_CV) CONE_CV=makeCone();
+  if(!FORK_CV) FORK_CV=makeForklift();
   renderDecals(fov,horizon); /* 血泊先画,尸体压在上面 */
-  for(var i=0;i<list.length;i++){
-    var e=list[i], pr=project(e.x,e.y,fov);
+  _bb.length=0;
+  for(var i=0;i<enemies.length;i++){
+    var e=enemies[i];
+    if(e.hp>0 || (e.deathT!==undefined && e.deathT<0.8)) _bb.push({d:dist2(e.x,e.y,P.x,P.y), kind:0, ref:e});
+  }
+  for(var j=0;j<CONES.length;j++){
+    var cn=CONES[j];
+    _bb.push({d:dist2(cn.x,cn.y,P.x,P.y), kind:1, ref:cn});
+  }
+  _bb.push({d:dist2(FORKLIFT.x,FORKLIFT.y,P.x,P.y), kind:2, ref:FORKLIFT});
+  _bb.sort(_bbByDist);
+  for(var k=0;k<_bb.length;k++){
+    var it=_bb[k], pr=project(it.ref.x,it.ref.y,fov);
     if(pr.behind||pr.dist<.3) continue;
-    var dying = e.hp<=0;
-    var f = dying? clamp((e.deathT||0)/0.8,0,1) : 0;
-    var size = H/pr.dist*.98;
-    var x0=pr.sx-size*.4, y1=horizon+size*.52;
-    var sizeH = size*(1-0.6*f); /* 倒地压扁:身体向地板塌下去 */
-    var y0=y1-sizeH;
-    var spr = SPRITES[e.def.spr];
-    var fi = Math.sin(e.walkT*7)>0?1:0;
-    var img = (e.flashT>0)? spr.flashes[fi] : spr.frames[fi];
-    var walkBob = dying? 0 : Math.sin(e.walkT*9)*size*.012;
-    if(e.flashT>0) x0 += (Math.random()-.5)*size*.04; /* 中弹抖一下 */
-    var step=Math.max(1,Math.floor(size/48));
-    if(dying) ctx.globalAlpha=1-0.45*f;
-    for(var sxPx=Math.floor(Math.max(0,x0)); sxPx<Math.min(W,x0+size*.8); sxPx+=step){
-      var colI=Math.floor(sxPx);
-      if(pr.dist>zbuf[colI]+.05) continue;
-      var u=(sxPx-x0)/(size*.8);
-      var sw=Math.max(1,(step/(size*.8))*128);
-      var leanY = u*size*0.35*f; /* 倒地倾倒:右侧先沉下去 */
-      ctx.drawImage(img, u*128,0, sw,160, sxPx, y0+walkBob+leanY, step+1, sizeH);
-    }
-    if(dying) ctx.globalAlpha=1;
-    if(dying) continue;
-    /* muzzle flash (新精灵的枪口在胸前右侧、朝向玩家,约 0.80 倍宽、0.50 倍高处) */
-    if(e.muzzleT>0){
-      ctx.fillStyle='rgba(255,190,80,'+clamp(e.muzzleT*6,0,1)+')';
-      var fx=pr.sx+size*.243, fy=y0+size*.5+walkBob, fs=Math.max(4,size*.05);
-      ctx.fillRect(fx,fy-1.5,fs,3); ctx.fillRect(fx+fs*.3,fy-fs*.35,3,fs*.7);
-    }
-    /* hp bar for damaged / heavy */
-    if(e.hp<e.def.hp && pr.dist<13){
-      var bw=size*.7, bx=pr.sx-bw/2, by=y0-8+walkBob;
-      ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(bx,by,bw,4);
-      ctx.fillStyle= e.def===ETYPES.heavy? '#c8b028':'#b3312a';
-      ctx.fillRect(bx,by,bw*clamp(e.hp/e.def.hp,0,1),4);
+    if(it.kind===0){
+      /* 敌人:活着的画正常,正在倒地的(死后 0.8 秒内)画倒地过程:压扁 + 向一侧倾倒 + 渐隐 */
+      var e2=it.ref;
+      var dying = e2.hp<=0;
+      var f = dying? clamp((e2.deathT||0)/0.8,0,1) : 0;
+      var size = H/pr.dist*.98;
+      var x0=pr.sx-size*.4, y1=horizon+size*.52;
+      var sizeH = size*(1-0.6*f); /* 倒地压扁:身体向地板塌下去 */
+      var y0=y1-sizeH;
+      var spr = SPRITES[e2.def.spr];
+      var fi = Math.sin(e2.walkT*7)>0?1:0;
+      var img = (e2.flashT>0)? spr.flashes[fi] : spr.frames[fi];
+      var walkBob = dying? 0 : Math.sin(e2.walkT*9)*size*.012;
+      if(e2.flashT>0) x0 += (Math.random()-.5)*size*.04; /* 中弹抖一下 */
+      var step=Math.max(1,Math.floor(size/48));
+      if(dying) ctx.globalAlpha=1-0.45*f;
+      for(var sxPx=Math.floor(Math.max(0,x0)); sxPx<Math.min(W,x0+size*.8); sxPx+=step){
+        var colI=Math.floor(sxPx);
+        if(pr.dist>zbuf[colI]+.05) continue;
+        var u=(sxPx-x0)/(size*.8);
+        var sw=Math.max(1,(step/(size*.8))*128);
+        var leanY = u*size*0.35*f; /* 倒地倾倒:右侧先沉下去 */
+        ctx.drawImage(img, u*128,0, sw,160, sxPx, y0+walkBob+leanY, step+1, sizeH);
+      }
+      if(dying) ctx.globalAlpha=1;
+      if(dying) continue;
+      /* muzzle flash (新精灵的枪口在胸前右侧、朝向玩家,约 0.80 倍宽、0.50 倍高处) */
+      if(e2.muzzleT>0){
+        ctx.fillStyle='rgba(255,190,80,'+clamp(e2.muzzleT*6,0,1)+')';
+        var fx=pr.sx+size*.243, fy=y0+size*.5+walkBob, fs=Math.max(4,size*.05);
+        ctx.fillRect(fx,fy-1.5,fs,3); ctx.fillRect(fx+fs*.3,fy-fs*.35,3,fs*.7);
+      }
+      /* hp bar for damaged / heavy */
+      if(e2.hp<e2.def.hp && pr.dist<13){
+        var bw=size*.7, bx=pr.sx-bw/2, by=y0-8+walkBob;
+        ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(bx,by,bw,4);
+        ctx.fillStyle= e2.def===ETYPES.heavy? '#c8b028':'#b3312a';
+        ctx.fillRect(bx,by,bw*clamp(e2.hp/e2.def.hp,0,1),4);
+      }
+    } else if(it.kind===1){
+      /* 交通锥:锥底贴地,锥高半格 */
+      var cn2=it.ref;
+      var csize=H/pr.dist*.5, w=csize*0.67;
+      var cx0=pr.sx-w/2, cy1=horizon+csize, cy0=cy1-csize;
+      var cstep=Math.max(1,Math.floor(w/24));
+      for(var csx=Math.floor(Math.max(0,cx0)); csx<Math.min(W,cx0+w); csx+=cstep){
+        var cci=Math.floor(csx);
+        if(pr.dist>zbuf[cci]+.05) continue;
+        var cu=(csx-cx0)/w;
+        var csw=Math.max(1,(cstep/w)*64);
+        ctx.drawImage(CONE_CV, cu*64,0, csw,96, csx, cy0, cstep+1, csize);
+      }
+    } else {
+      /* 叉车立牌:车高约 .9 格,宽 1.2 格,轮底贴地 */
+      var fsize=H/pr.dist*.9, fw=fsize*128/96;
+      var fx0=pr.sx-fw/2, fy1=horizon+fsize, fy0=fy1-fsize;
+      var fstep=Math.max(1,Math.floor(fw/32));
+      for(var fxx=Math.floor(Math.max(0,fx0)); fxx<Math.min(W,fx0+fw); fxx+=fstep){
+        var fci=Math.floor(fxx);
+        if(pr.dist>zbuf[fci]+.05) continue;
+        var fu=(fxx-fx0)/fw;
+        var fsw=Math.max(1,(fstep/fw)*128);
+        ctx.drawImage(FORK_CV, fu*128,0, fsw,96, fxx, fy0, fstep+1, fsize);
+      }
     }
   }
 }
@@ -1406,38 +1449,6 @@ function makeForklift(){
   return c;
 }
 var FORK_CV=null;
-function renderProps(fov,horizon){
-  if(!CONE_CV) CONE_CV=makeCone();
-  for(var i=0;i<CONES.length;i++){
-    var cn=CONES[i], pr=project(cn.x,cn.y,fov);
-    if(pr.behind||pr.dist<.3) continue;
-    var size=H/pr.dist*.5, w=size*0.67;
-    var x0=pr.sx-w/2, y1=horizon+size, y0=y1-size; /* 锥底贴地:锥高半格,底边=地平线+锥高(之前 *.52 照搬敌人公式,底边悬空半个锥身) */
-    var step=Math.max(1,Math.floor(w/24));
-    for(var sxPx=Math.floor(Math.max(0,x0)); sxPx<Math.min(W,x0+w); sxPx+=step){
-      var colI=Math.floor(sxPx);
-      if(pr.dist>zbuf[colI]+.05) continue;
-      var u=(sxPx-x0)/w;
-      var sw=Math.max(1,(step/w)*64);
-      ctx.drawImage(CONE_CV, u*64,0, sw,96, sxPx, y0, step+1, size);
-    }
-  }
-  /* 叉车立牌:车高约 .9 格,宽 1.2 格,轮底贴地,和锥子同一套贴地 + zbuf 遮挡 */
-  if(!FORK_CV) FORK_CV=makeForklift();
-  var fk=FORKLIFT, fpr=project(fk.x,fk.y,fov);
-  if(!fpr.behind && fpr.dist>=.3){
-    var fsize=H/fpr.dist*.9, fw=fsize*128/96;
-    var fx0=fpr.sx-fw/2, fy1=horizon+fsize, fy0=fy1-fsize;
-    var fstep=Math.max(1,Math.floor(fw/32));
-    for(var fx=Math.floor(Math.max(0,fx0)); fx<Math.min(W,fx0+fw); fx+=fstep){
-      var fci=Math.floor(fx);
-      if(fpr.dist>zbuf[fci]+.05) continue;
-      var fu=(fx-fx0)/fw;
-      var fsw=Math.max(1,(fstep/fw)*128);
-      ctx.drawImage(FORK_CV, fu*128,0, fsw,96, fx, fy0, fstep+1, fsize);
-    }
-  }
-}
 function renderDecals(fov,horizon){
   if(!BLOOD_CV) BLOOD_CV=makeBlood();
   for(var i=0;i<decals.length;i++){
@@ -1861,7 +1872,7 @@ function shoot(now){
   if(st.mag<=0){ SFX.dry(); P.lastShot=now; if(st.reserve>0) startReload(); return; }
   st.mag--; P.shots+=w.pellets; P.lastShot=now;
   P.muzzle=1; P.shellT=1;
-  P.recoil=clamp(P.recoil+w.kick*3.2,0,1);
+  P.recoilV+=w.kick*9; /* 弹簧后坐:给速度加冲量,位置由弹簧积分推上去 */
   P.pitch=clamp(P.pitch+w.kick*.3,-.32,.32); /* 镜头上跳:后坐不止枪在动,视线也跟着抬,打完要自己压回来 */
   P.spreadBloom=clamp(P.spreadBloom+.16,0,1);
   P.dir += rnd(-.0015,.0015);
@@ -1911,6 +1922,17 @@ function shoot(now){
   if(st.mag===0 && st.reserve>0) centerMsg(isTouch?'弹匣已空 — 点「换弹」':'弹匣已空 — R 换弹',1.2);
   updateWeaponHUD();
 }
+/* 射线(ox,oy)+t*(dx,dy) 与圆(cx,cy,r) 的交点距离;不相交返回 Infinity */
+function rayCircleDist(ox,oy,dx,dy,cx,cy,r){
+  var fx=ox-cx, fy=oy-cy;
+  var b=fx*dx+fy*dy, c=fx*fx+fy*fy-r*r;
+  var disc=b*b-c;
+  if(disc<0) return Infinity;
+  var sq=Math.sqrt(disc), t=-b-sq;
+  if(t<0) t=-b+sq;
+  if(t<0) return Infinity;
+  return t;
+}
 function castRayFrom(ox,oy,ang){
   var dx=Math.cos(ang), dy=Math.sin(ang);
   var mx=Math.floor(ox), my=Math.floor(oy);
@@ -1924,6 +1946,9 @@ function castRayFrom(ox,oy,ang){
     if(GRID[my][mx]) break;
   }
   var dist= side===0? sdx-ddx : sdy-ddy;
+  /* 叉车是独立圆形障碍:子弹(玩家和敌人的流弹)打在叉车上停住,不穿过去 */
+  var fd=rayCircleDist(ox,oy,dx,dy,FORKLIFT.x,FORKLIFT.y,FORKLIFT.r);
+  if(fd<dist) dist=fd;
   return {dist:Math.max(dist,.01), hx:ox+dx*dist, hy:oy+dy*dist};
 }
 function killEnemy(e){
@@ -2534,11 +2559,11 @@ function updatePlayer(dt,now){
   if(keys['ArrowRight']) P.dir+=1.9*dt;
   /* 下蹲:Shift 按住 或 C/手机按钮切换,两者任一成立即蹲 */
   P.crouch = !!(P.crouchHold || P.crouchTog);
-  /* 疾跑:长按 W(或上箭头)满 0.7 秒自动起跑,不再单独设键;手机摇杆推满同理 */
+  /* 疾跑:长按 W(或上箭头)满 0.25 秒自动起跑,不再单独设键;手机摇杆推满同理 */
   if((keys['KeyW']||keys['ArrowUp']) && fwd>0) P.wHoldT=(P.wHoldT||0)+dt; else P.wHoldT=0;
-  var wantSprint=(P.wHoldT>0.7 || touchSprint) && fwd>0 && P.stam>2;
+  var wantSprint=(P.wHoldT>0.25 || touchSprint) && fwd>0 && P.stam>2;
   P.sprinting=!!wantSprint;
-  var speed=(P.crouch?1.5: P.sprinting?4.4:2.7) * (P.ads?.55:1);
+  var speed=(P.crouch?1.5: P.sprinting?4.8:3.0) * (P.ads?.55:1);
   var mag=Math.sqrt(fwd*fwd+str*str)||1;
   P.moving=Math.abs(fwd)+Math.abs(str)>.1;
   /* 枪模惯性:横移时枪身顺势侧倾(strafeLean 平滑跟随横移输入);
@@ -2546,7 +2571,7 @@ function updatePlayer(dt,now){
      机瞄过渡 adsBlend 让持枪位从右下侧持平滑收到画面正中对准星 */
   P.strafeLean += (clamp(str,-1,1) - P.strafeLean) * Math.min(1, dt*7);
   var dDir = angDiff(P.dir, P.lastDirForSway); P.lastDirForSway = P.dir;
-  P.turnSway = clamp(P.turnSway + dDir*520, -30, 30) * Math.pow(.004, dt);
+  P.turnSway = clamp(P.turnSway + dDir*320, -20, 20) * Math.pow(.004, dt);
   P.adsBlend = clamp((P.adsBlend||0) + ((P.ads?1:-1)*dt*7), 0, 1);
   /* 切枪计时:前段旧枪下沉,到 switchHolster 那一刻换模并播拔枪声,
      后段新枪抬升;结束时一声到位脆响并刷新 HUD */
@@ -2575,8 +2600,18 @@ function updatePlayer(dt,now){
   /* stamina: 疾跑消耗放轻(约 8 秒跑空),恢复也快一点 */
   if(P.sprinting&&P.moving) P.stam=Math.max(0,P.stam-12*dt);
   else P.stam=Math.min(100,P.stam+(P.moving?10:18)*dt);
-  /* recoil recovery */
-  P.recoil*=Math.pow(.002,dt); P.spreadBloom*=Math.pow(.01,dt);
+  /* recoil spring:胡克弹簧回正(带一点回弹),dt 归一化到 60fps 步长;
+     低帧率下大步长显式欧拉会杀死弹簧,拆成每步<=1 的子步积分 */
+  var sdt=dt*60;
+  var nSub=Math.max(1, Math.ceil(sdt)), h=sdt/nSub;
+  for(var sSub=0;sSub<nSub;sSub++){
+    var racc=-0.3*P.recoil-0.65*P.recoilV;
+    P.recoilV+=racc*h;
+    P.recoil+=P.recoilV*h;
+  }
+  if(P.recoil<0){ P.recoil=0; if(P.recoilV<0) P.recoilV=0; }
+  if(P.recoil>1){ P.recoil=1; if(P.recoilV>0) P.recoilV=0; }
+  P.spreadBloom*=Math.pow(.01,dt);
   if(P.shellT>0)P.shellT-=dt*3;
   /* bleeding */
   if(P.bleed>0){
@@ -3022,7 +3057,7 @@ onTap($('btnFresh'),function(){
   try{
     var u=window.location.href.split('#')[0];
     var sep=u.indexOf('?')===-1?'?':'&';
-    window.location.replace(u+sep+'_v=23&_t='+Date.now());
+    window.location.replace(u+sep+'_v=25&_t='+Date.now());
   }catch(err){
     try{ window.location.reload(); }catch(e2){}
   }
@@ -3089,7 +3124,7 @@ document.addEventListener('keydown',function(e){
   }
   window.addEventListener('click', function(e){ logEv('click', e.target, e.clientX, e.clientY); }, {capture:true, passive:true});
   function mq(q){ try{ return (window.matchMedia && matchMedia(q).matches)? '有':'无'; }catch(err){ return '?'; } }
-  push('<span class="tl-t">诊断</span> 页面已加载 <b>v24</b> · 触点数='+(navigator.maxTouchPoints||0)
+  push('<span class="tl-t">诊断</span> 页面已加载 <b>v25</b> · 触点数='+(navigator.maxTouchPoints||0)
     +' · 粗指针='+mq('(pointer: coarse)')+' 细指针='+mq('(pointer: fine)')
     +' · ontouchstart='+('ontouchstart' in window ? '有':'无'));
   push('点按钮 / 拖摇杆 / 按开火,看下面滚不滚');
@@ -3441,7 +3476,7 @@ requestAnimationFrame(loop);
     var t = performance.now()/1000;
     var bobAmp = P.ads?0.28:(P.sprinting?1.3:1);
     var bobX = (P.moving?Math.sin(P.bobT)*1.0*bobAmp:Math.sin(t*1.4)*0.12)*TUNE.bobX;
-    var bobY = (P.moving?Math.abs(Math.cos(P.bobT))*0.8*bobAmp:Math.sin(t*2.1)*0.1)*TUNE.bobY;
+    var bobY = (P.moving?Math.cos(P.bobT*2)*0.8*bobAmp:Math.sin(t*2.1)*0.1)*TUNE.bobY;
     var swayX = (P.stam<25?Math.sin(t*2.7)*(25-P.stam)*0.004:Math.sin(t*1.1)*0.06)*TUNE.bobX;
     var lagYaw = clamp(-(P.turnSway||0),-26,26)*TUNE.swayYaw;
     var kick = (P.recoil||0);
