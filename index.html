@@ -90,6 +90,7 @@
   #hitmark.kill span{background:var(--blood);}
   #hitmark.head span{background:#ffd23e;}
   #hitmark.head.kill span{background:#ff7a1a;}
+  #hitmark.pen span{background:#ff9f2e;}
   #hitmark.head{width:34px;height:34px;}
   .sensrow{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.85rem;}
   .sensrow input[type=range]{flex:1;accent-color:#e0a458;}
@@ -237,6 +238,7 @@
   #tMed{left:calc(18px + env(safe-area-inset-left));bottom:calc(166px + env(safe-area-inset-bottom));flex-direction:column;}
   #tMed .cnt{font-size:.55rem;color:var(--ink-dim);line-height:1.1;}
   #tGun{right:calc(24px + env(safe-area-inset-right));bottom:calc(134px + env(safe-area-inset-bottom));}
+  #tJumpBtn{right:calc(182px + env(safe-area-inset-right));bottom:calc(140px + env(safe-area-inset-bottom));}
   #tCrouch{right:calc(124px + env(safe-area-inset-right));bottom:calc(30px + env(safe-area-inset-bottom));width:52px;height:52px;font-size:.6rem;}
   #tTac{right:calc(138px + env(safe-area-inset-right));bottom:calc(248px + env(safe-area-inset-bottom));width:52px;height:52px;font-size:.6rem;}
   #tThrow{right:calc(208px + env(safe-area-inset-right));bottom:calc(248px + env(safe-area-inset-bottom));width:52px;height:52px;font-size:.6rem;}
@@ -307,9 +309,9 @@
 
 </style>
 <script>
-/* 缓存破坏 v25:从前进/后退缓存(bfcache)恢复的旧页面直接整页重载拿新版;
+/* 缓存破坏 v27:从前进/后退缓存(bfcache)恢复的旧页面直接整页重载拿新版;
    本页 HTML 也已声明 no-store,字体地址带 ?v=19,三层一起防 WebView 吃旧版。 */
-window.__BUILD_VER__='v25';
+window.__BUILD_VER__='v27';
 window.addEventListener('pageshow',function(e){
   if(e && e.persisted){ try{ window.location.reload(); }catch(err){} }
 });
@@ -357,6 +359,7 @@ window.addEventListener('pageshow',function(e){
     <button class="tbtn" id="tReload">换弹</button>
     <button class="tbtn" id="tMed">医疗<span class="cnt" id="medCnt">绷3 · 包2</span></button>
     <button class="tbtn" id="tGun">切枪</button>
+    <button class="tbtn" id="tJumpBtn">跳跃</button>
     <button class="tbtn" id="tCrouch">下蹲</button>
     <button class="tbtn" id="tTac">战术</button>
     <button class="tbtn" id="tThrow">投掷</button>
@@ -378,7 +381,7 @@ window.addEventListener('pageshow',function(e){
        在此之前开始界面的按钮保持 disabled 置灰,点了也不会有反应落空 -->
   <div id="loadscreen" role="status" aria-label="加载中">
     <div class="loadpanel">
-      <div class="kicker">PIXEL STRIKE · v25</div>
+      <div class="kicker">PIXEL STRIKE · v27</div>
       <div class="load-title">加载中<span class="dots"></span></div>
       <p class="load-note">正在生成贴图与敌人模型、准备武器数据并预热第一帧画面。慢机上可能要等几秒到十几秒，进度走完、按钮亮起后再点「进入战场」。</p>
       <div class="loadbar"><i id="loadfill"></i></div>
@@ -390,9 +393,9 @@ window.addEventListener('pageshow',function(e){
   <div class="screen" id="startscreen">
    <div class="screenwrap">
     <div class="panel">
-      <div class="kicker">TACTICAL PIXEL FPS · FRAMEWORK v25</div>
+      <div class="kicker">TACTICAL PIXEL FPS · FRAMEWORK v27</div>
       <h1>像素射击<em>框架</em></h1>
-      <div class="ver-badge" id="verBadge" aria-label="当前版本 v25"><span class="v">v25</span><span class="t">当前版本 v25<small>反馈时报这个号 · 看不到 v25 就是还在看旧缓存</small></span></div>
+      <div class="ver-badge" id="verBadge" aria-label="当前版本 v27"><span class="v">v27</span><span class="t">当前版本 v27<small>反馈时报这个号 · 看不到 v27 就是还在看旧缓存</small></span></div>
       <p class="sub">第一人称射击，照着使命召唤手游的持枪动作做的三把枪：枪很大、居中竖持——枪托在画面下方正中，枪身从下往上竖着占满画面中部，只略带倾斜，枪管轴线从下方正中直指准心，枪口朝上前方对准心；右手握握把在机匣右侧、左手托护木，双手都看得见。这一版把枪层和游戏画面统一到同一个坐标系（之前两套坐标对不上，枪在右下、曳光却从右上飞），枪口火光和曳光都从上方真实枪口出发、连到准心命中点；换弹是分段真动作——步枪整枪向一侧翻转、左手拔匣装匣，右手拉动枪机，手枪卸匣装匣后拉套筒，霰弹一发一发往弹仓里压弹、最后泵动上膛，翻枪归翻枪，锚点始终居中，声音和手对得上；切枪时新枪抬进视野会先侧倾展示一下整侧枪身，像检视一样，再回落到持枪位，全程不能开火也不能换弹，手枪最快、步枪居中、霰弹最慢；机瞄时准星尖压到画面正中心。规则还是往硬核里做：没有自动回血，打中会流血，换弹会丢掉弹匣里剩下的子弹，枪会卡壳，跑累了枪口会飘。活着清完一波，才有下一波。手机上横屏双拇指操作：左摇杆走位、右手滑屏瞄准、大按钮开火，惩罚都留着，但不往死里压——换弹只慢一点、疾跑不费多少体力、震屏也收着来。</p>
       <div class="grid">
         <div class="card">
@@ -459,7 +462,7 @@ window.addEventListener('pageshow',function(e){
       </div>
       <div class="btnrow">
         <button class="btn" id="btnStart" disabled>进入战场</button>
-        <button id="btnFresh" type="button" disabled>↻ 不是 v25？点这里强制刷新最新版</button>
+        <button id="btnFresh" type="button" disabled>↻ 不是 v27？点这里强制刷新最新版</button>
         <span class="note desktop-only">点击后锁定鼠标视角 · 耳机体验更佳</span>
         <span class="note mobile-only">点「进入战场」直接开打，不用锁鼠标 · 建议横屏，双手握持</span>
       </div>
@@ -696,6 +699,8 @@ var SFX={
   pickup:function(){ tone(660,.07,.2,'square'); setTimeout(function(){tone(880,.09,.2,'square');},80); },
   wave:function(){ tone(196,.25,.3,'sawtooth'); setTimeout(function(){tone(147,.35,.3,'sawtooth');},200); },
   step:function(run){ noiseHit(.05,run?300:220,.07); },
+  door:function(){ mechSlide(0,900,.4); mechClick(430,1800,.22); mechThunk(450,.18); },
+  land:function(){ noiseHit(.09,150,.16,'lowpass'); tone(70,.08,.12,'triangle',-20); },
   estep:function(dist){ /* 敌人脚步:越近越响,14 格外听不见,给玩家预警 */
     var v=clamp(1-dist/14,0,1)*.3; if(v<.02) return;
     noiseHit(.06,260,v); tone(85,.06,v*.7,'triangle',-20);
@@ -942,6 +947,18 @@ var TEX = [
       var rx=(Math.random()*s)|0; g.fillRect(rx, 70+((Math.random()*40)|0), 3, 12+((Math.random()*24)|0)); }
     g.fillStyle='rgba(255,255,255,.5)'; g.font='bold 13px monospace'; g.fillText('TCKU 4821', 10, 100);
     g.fillStyle='rgba(0,0,0,.25)'; g.fillRect(0,s-8,s,8);
+  }),
+  makeTex(128,function(g,s){ /* 17 集装箱滑动门:钢板 + 窥窗 + 警示条 */
+    texNoise(g,s,[86,94,102],12);
+    g.fillStyle='rgba(0,0,0,.3)'; g.fillRect(0,0,s,6); g.fillRect(0,s-6,s,6);
+    g.fillStyle='rgba(255,255,255,.08)'; g.fillRect(0,6,s,3);
+    g.fillStyle='#2c343c'; g.fillRect(14,16,s-28,26);
+    g.fillStyle='rgba(150,190,215,.55)'; g.fillRect(17,19,s-34,20);
+    g.fillStyle='rgba(255,255,255,.25)'; g.fillRect(17,19,10,20);
+    g.fillStyle='rgba(0,0,0,.35)'; g.fillRect(0,52,s,3);
+    for(var bx=0;bx<s;bx+=16){ g.fillStyle=((bx/16)%2)? '#c8a028':'#22242a'; g.fillRect(bx,s-18,16,10); }
+    g.fillStyle='rgba(0,0,0,.4)'; g.fillRect(s-14,58,6,26);
+    g.fillStyle='rgba(255,255,255,.5)'; g.font='bold 11px monospace'; g.fillText('AIRLOCK', 10, 66);
   })
 ];
 
@@ -952,10 +969,10 @@ var MAP_W=18, MAP_H=18;
    横向集装箱通道 y9 x9-12,纵向 x6 y13-15(墙 A,木地板);叉车不再是墙块,改独立立牌道具 */
 var MAP=[
 "BBBBBBBBBBBBBBBBBB",
-"B0000000000000000B",
-"B0000022920000000B",
-"B0030000000000400B",
-"B0000000000D00000B",
+"B00000000000AAAA0B",
+"B00000229200A00A0B",
+"B00300000000G00A0B",
+"B0000000000DAAAA0B",
 "B0055000000005500B",
 "B0000000000000000B",
 "B000FF00000FF0000B",
@@ -971,15 +988,42 @@ var MAP=[
 "BBBBBBBBBBBBBBBBBB"
 ];
 var GRID=[];
-var TILEMAP={'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'8':8,'9':9,'A':10,'B':12,'C':13,'D':14,'E':15,'F':16};
+var TILEMAP={'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'8':8,'9':9,'A':10,'B':12,'C':13,'D':14,'E':15,'F':16,'G':17};
 for(var my=0;my<MAP_H;my++){ GRID.push([]); for(var mx=0;mx<MAP_W;mx++) GRID[my].push(TILEMAP[MAP[my][mx]]||0); }
 /* 叉车:独立立牌道具(不再是方形墙块),横向通道东出口南侧,不挡出口;
    实体:人/敌人/弹道/视线都撞它,墙体渲染(GRID)不管它 */
 var FORKLIFT={x:13.5, y:10.5, r:.45};
+/* 集装箱室内滑动门:门格 (12,3)(房间西墙),门面在格子中心面 x=gx+0.5,面板沿 +y 滑开;
+   open<0.75 时按实体算(挡移动/视线/子弹),开够了才放行 */
+var DOOR={gx:12, gy:3, axis:'x', open:0, target:0};
+function doorRayHit(ox,oy,dx,dy){
+  /* 射线与门中心面的交点:命中面板返回 {dist,u}(u=面板纹理坐标),穿过开口/不命中返回 null */
+  if(DOOR.axis==='y'){
+    if(Math.abs(dy)<1e-9) return null;
+    var t=(DOOR.gy+0.5-oy)/dy; if(t<=0) return null;
+    var loc=ox+dx*t-DOOR.gx; if(loc<0||loc>1) return null;
+    if(loc>=DOOR.open) return {dist:t, u:loc-DOOR.open};
+    return null;
+  }
+  if(Math.abs(dx)<1e-9) return null;
+  var t2=(DOOR.gx+0.5-ox)/dx; if(t2<=0) return null;
+  var loc2=oy+dy*t2-DOOR.gy; if(loc2<0||loc2>1) return null;
+  if(loc2>=DOOR.open) return {dist:t2, u:loc2-DOOR.open};
+  return null;
+}
+function updateDoor(dt){
+  var cx=DOOR.gx+0.5, cy=DOOR.gy+0.5, near=dist2(P.x,P.y,cx,cy)<2.89;
+  if(!near) for(var i=0;i<enemies.length;i++){ if(enemies[i].hp>0&&dist2(enemies[i].x,enemies[i].y,cx,cy)<2.89){ near=true; break; } }
+  DOOR.target=near?1:0;
+  if(DOOR.target>DOOR.open){ if(DOOR.open===0) SFX.door(); DOOR.open=Math.min(DOOR.target,DOOR.open+dt/0.6); }
+  else if(DOOR.target<DOOR.open){ DOOR.open=Math.max(DOOR.target,DOOR.open-dt/0.6); }
+}
 function solidAt(x,y){
   var gx=Math.floor(x), gy=Math.floor(y);
   if(gx<0||gy<0||gx>=MAP_W||gy>=MAP_H) return 1;
-  if(GRID[gy][gx]) return GRID[gy][gx];
+  var gcell=GRID[gy][gx];
+  if(gcell===17){ if(DOOR.open<0.75) return 17; }
+  else if(gcell) return gcell;
   var fdx=x-FORKLIFT.x, fdy=y-FORKLIFT.y;
   if(fdx*fdx+fdy*fdy < FORKLIFT.r*FORKLIFT.r) return 1;
   return 0;
@@ -1086,7 +1130,7 @@ function freshPlayer(){
     turnSway:0, lastDirForSway:-Math.PI/2, strafeLean:0, adsBlend:0,
     /* 投掷物手持:heldTac -1=拿枪,0-3=手里拿着 TAC_DEFS[heldTac];throwT 抛出动画计时,pendingTac 切投掷物中 */
     heldTac:-1, throwT:0, throwPend:'', throwSpawned:true, pendingTac:-1,
-    lastShot:-9, triggerHeld:false, ads:false, crouch:false, crouchHold:false, crouchTog:false, wHoldT:0, recoil:0, recoilV:0, spreadBloom:0,
+    lastShot:-9, triggerHeld:false, ads:false, crouch:false, crouchHold:false, crouchTog:false, wHoldT:0, recoil:0, recoilV:0, spreadBloom:0, z:0, vz:0,
     bobT:0, sway:0, dead:false, shots:0, hits:0, headshots:0, kills:0, score:0,
     dmgFlash:0, hurtDir:0, hurtT:0, suppress:0, stepT:0, muzzle:0, shellT:0 };
 }
@@ -1155,7 +1199,13 @@ function castRay(ang){
   while(guard++<64){
     if(sdx<sdy){ sdx+=ddx; mx+=sx; side=0; } else { sdy+=ddy; my+=sy; side=1; }
     if(mx<0||my<0||mx>=MAP_W||my>=MAP_H){ tile=1; break; }
-    tile=GRID[my][mx]; if(tile) break;
+    tile=GRID[my][mx];
+    if(tile===17){
+      var dh=doorRayHit(P.x,P.y,dx,dy);
+      if(dh) return {dist:Math.max(dh.dist,.0001), side:(DOOR.axis==='y'?1:0), tile:17, hx:P.x+dx*dh.dist, hy:P.y+dy*dh.dist, wallX:dh.u};
+      continue;
+    }
+    if(tile) break;
   }
   var dist = side===0 ? sdx-ddx : sdy-ddy;
   return {dist:Math.max(dist,.0001), side:side, tile:tile,
@@ -1168,7 +1218,7 @@ var f32 = new Uint32Array(frame.data.buffer);
 function packPx(r,g,b){ return (255<<24)|(((b&255))<<16)|(((g&255))<<8)|(r&255); }
 function render(){
   var fov = game.fov * (P.ads? WEAPONS[P.wi].zoom : 1);
-  var horizon = HOR + P.pitch*H*.6 - (P.crouch? 20:0) + Math.sin(P.bobT*2)* (P.moving?2.4:0);
+  var horizon = HOR + P.pitch*H*.6 - (P.crouch? 20:0) + Math.sin(P.bobT*2)* (P.moving?2.4:0) + (P.z||0)*H*0.16;
   var d = frame.data;
   /* ceiling & floor:真贴图投射(地板重点,天花板 2x2 半分辨率)。
      行距公式与墙高同源:墙高 lh=H*0.92/corr,墙脚 y1-horizon=H*0.46/corr
@@ -1191,7 +1241,7 @@ function render(){
     sh2=clamp(1-dist/16,.12,.95)*supDim;
     var rowBase=yy2*W;
     for(xx2=0;xx2<W;xx2++){
-      var inTun=(fx>=9&&fx<13&&fy>=9&&fy<10)||(fx>=6&&fx<7&&fy>=13&&fy<16);
+      var inTun=(fx>=9&&fx<13&&fy>=9&&fy<10)||(fx>=6&&fx<7&&fy>=13&&fy<16)||(fx>=13&&fx<15&&fy>=2&&fy<4);
       var td=inTun?texW.data:texF.data;
       tx2=(Math.floor(fx*128))&127; ty2=(Math.floor(fy*128))&127;
       si2=(ty2*128+tx2)*4;
@@ -1226,7 +1276,7 @@ function render(){
     var lh = H/(corr+.0001)*.92;
     var y0 = horizon-lh/2, y1 = horizon+lh/2;
     var tex = TEX[hit.tile]||TEX[1];
-    var wallX = hit.side===0 ? hit.hy%1 : hit.hx%1;
+    var wallX = hit.wallX!==undefined ? hit.wallX : (hit.side===0 ? hit.hy%1 : hit.hx%1);
     var tx = Math.floor(wallX*tex.size); if(tx<0)tx=0; if(tx>=tex.size)tx=tex.size-1;
     var fog = clamp(1-corr/17, .14, 1) * (hit.side? .72 : 1);
     fog *= 1 - ((Math.floor(hit.hx)+Math.floor(hit.hy)*3)%4)*0.05; /* 每段墙亮度微差 */
@@ -1578,6 +1628,7 @@ function renderTac2D(GM){
     }
   }
 }
+var _ampS2=1, _mvB2=0, _lt2=0, _zS2=0, _zV2=0; /* 2D 枪 bob 平滑状态:幅度平滑 + 待机/走动混合 */
 function renderWeapon(){
   var w=WEAPONS[P.wi], VS=W/480;
   sizeGunLayer();
@@ -1590,9 +1641,20 @@ function renderWeapon(){
   else { gtx.translate(GM.tx,GM.ty); gtx.scale(GM.sx,GM.sy); }
 
   var t=performance.now()/1000;
-  var bobAmp=P.ads?.28:(P.sprinting?1.3:1);
-  var bobX=(P.moving?Math.sin(P.bobT)*9*bobAmp:Math.sin(t*1.4)*1.1)*VS;
-  var bobY=(P.moving?Math.abs(Math.cos(P.bobT))*7*bobAmp:Math.sin(t*2.1)*0.9)*VS;
+  var dt2=clamp(t-(_lt2||t),0,0.05); _lt2=t;
+  var ampT2=P.ads?.28:(P.sprinting?1.3:1);
+  _ampS2+=(ampT2-_ampS2)*Math.min(1,dt2*10);
+  var bobAmp=_ampS2;
+  var mvT2=P.moving?1:0;
+  _mvB2+=(mvT2-_mvB2)*Math.min(1,dt2*8);
+  var walkBobX=Math.sin(P.bobT)*9, idleBobX=Math.sin(t*1.4)*1.1;
+  var walkBobY=Math.cos(P.bobT*2)*7, idleBobY=Math.sin(t*2.1)*0.9;
+  var bobX=(idleBobX*(1-_mvB2)+walkBobX*_mvB2)*bobAmp*VS;
+  var bobY=(idleBobY*(1-_mvB2)+walkBobY*_mvB2)*bobAmp*VS;
+  /* 跳跃纵向滞后(2D 兜底):枪用弹簧跟随眼高,起跳沉、落地弹 */
+  var zT3=(P.z||0), sub2=Math.max(1,Math.ceil(dt2/0.016)), sh2=dt2/sub2;
+  for(var zi2=0;zi2<sub2;zi2++){ _zV2 += (-150*(_zS2-zT3) - 15*_zV2)*sh2; _zS2 += _zV2*sh2; }
+  bobY += clamp(zT3-_zS2,-0.35,0.35)*30*VS;
   var walkRot=(P.moving?Math.sin(P.bobT)*.022*bobAmp:0)+(P.strafeLean||0)*.045;
   var swayX=(P.stam<25?Math.sin(t*2.7)*(25-P.stam)*.07:Math.sin(t*1.1)*1.0)*VS;
   var lagX=clamp(-(P.turnSway||0),-26,26)*VS;
@@ -1914,9 +1976,52 @@ function shoot(now){
       if(best.hp<=0){ killEnemy(best); if(best.zone==='head') SFX.headshot(); }
       else if(best.zone==='head') SFX.headshot(); else SFX.hit();
     } else {
-      spawnParticles(wall.hx,wall.hy,.5,3,'#cbb98a',.35,.4);
-      var mzc2=physToCanvas(muzzleScr.x, muzzleScr.y);
-      tracers.push({sx1:mzc2.x, sy1:mzc2.y, x2:wall.hx, y2:wall.hy, z2:.5, life:.12, enemy:false});
+      /* 穿墙(仅玩家子弹):第一面是普通墙(叉车/门不算可穿)且墙前没命中时,
+         子弹穿墙继续飞最多 6 格,到第二面墙为止,命中的第一个敌人吃 40% 伤害
+         (0.4 最后乘:距离衰减、部位倍率、护甲都先照常算完) */
+      var penDone=false;
+      var info1=castRayInfo(P.x,P.y,ang,-1,-1);
+      var fdP=rayCircleDist(P.x,P.y,Math.cos(ang),Math.sin(ang),FORKLIFT.x,FORKLIFT.y,FORKLIFT.r);
+      if(info1.tile && info1.tile!==17 && fdP>=info1.dist){
+        var info2=castRayInfo(P.x,P.y,ang,info1.gx,info1.gy);
+        var lim2=Math.min(info2.dist, info1.dist+6);
+        if(fdP>info1.dist && fdP<lim2) lim2=fdP;
+        var penE=null, penD=Infinity;
+        for(var pi=0;pi<enemies.length;pi++){
+          var pe=enemies[pi]; if(pe.hp<=0) continue;
+          var pdx=pe.x-P.x, pdy=pe.y-P.y, pd=Math.sqrt(pdx*pdx+pdy*pdy);
+          if(pd<=info1.dist+.1 || pd>lim2+.4 || pd<.3) continue;
+          var prel=Math.abs(angDiff(Math.atan2(pdy,pdx),ang));
+          var phitR=Math.atan(.42/pd) * (isTouch? 1.35 : 1);
+          if(prel<phitR){
+            var pzone=(P.pitch>.09 && prel<phitR*.55)? 'head' : (Math.random()<.18?'leg':'body');
+            if(pd<penD){ penE=pe; penD=pd; penE.zone=pzone; }
+          }
+        }
+        if(penE){
+          var pfall=penD>14? .65 : penD>8? .85 : 1;
+          var pdmg=w.dmg*pfall*(penE.zone==='head'?2.5:penE.zone==='leg'?.6:1);
+          if(penE.def.armor && penE.zone==='body') pdmg*=(1-penE.def.armor);
+          pdmg*=0.4;
+          penE.hp-=pdmg; penE.flashT=.12; penE.stunT=.12; penE.alert=true;
+          P.hits++;
+          var mzc3=physToCanvas(muzzleScr.x, muzzleScr.y);
+          tracers.push({sx1:mzc3.x, sy1:mzc3.y, x2:penE.x, y2:penE.y, z2:penE.zone==='head'?.85:.55, life:.12, enemy:false});
+          el.hit.className=(penE.zone==='head'?'head':'') + (penE.hp<=0?' kill':'') + ' pen'; el.hit.id='hitmark';
+          el.hit.style.opacity=1; game.hitmarkT=penE.zone==='head' ? .3 : .18;
+          centerMsg(penE.zone==='head'?'穿墙爆头！':'穿墙命中', .7);
+          spawnParticles(wall.hx,wall.hy,.5,3,'#cbb98a',.35,.4);
+          spawnParticles(penE.x,penE.y, penE.zone==='head'?.85:.55, penE.zone==='head'?10:6, '#a01812', .5,.7);
+          if(penE.hp<=0){ killEnemy(penE); if(penE.zone==='head') SFX.headshot(); }
+          else if(penE.zone==='head') SFX.headshot(); else SFX.hit();
+          penDone=true;
+        }
+      }
+      if(!penDone){
+        spawnParticles(wall.hx,wall.hy,.5,3,'#cbb98a',.35,.4);
+        var mzc2=physToCanvas(muzzleScr.x, muzzleScr.y);
+        tracers.push({sx1:mzc2.x, sy1:mzc2.y, x2:wall.hx, y2:wall.hy, z2:.5, life:.12, enemy:false});
+      }
     }
   }
   if(st.mag===0 && st.reserve>0) centerMsg(isTouch?'弹匣已空 — 点「换弹」':'弹匣已空 — R 换弹',1.2);
@@ -1939,17 +2044,39 @@ function castRayFrom(ox,oy,ang){
   var ddx=Math.abs(1/(dx||1e-9)), ddy=Math.abs(1/(dy||1e-9));
   var sx=dx<0?-1:1, sy=dy<0?-1:1;
   var sdx=(dx<0?(ox-mx):(mx+1-ox))*ddx, sdy=(dy<0?(oy-my):(my+1-oy))*ddy;
-  var side=0, guard=0;
+  var side=0, guard=0, doorDist=-1;
   while(guard++<64){
     if(sdx<sdy){ sdx+=ddx; mx+=sx; side=0; } else { sdy+=ddy; my+=sy; side=1; }
     if(mx<0||my<0||mx>=MAP_W||my>=MAP_H) break;
-    if(GRID[my][mx]) break;
+    var gtc=GRID[my][mx];
+    if(gtc===17){ var dh3=doorRayHit(ox,oy,dx,dy); if(dh3){ doorDist=dh3.dist; break; } }
+    else if(gtc) break;
   }
   var dist= side===0? sdx-ddx : sdy-ddy;
+  if(doorDist>=0) dist=doorDist;
   /* 叉车是独立圆形障碍:子弹(玩家和敌人的流弹)打在叉车上停住,不穿过去 */
   var fd=rayCircleDist(ox,oy,dx,dy,FORKLIFT.x,FORKLIFT.y,FORKLIFT.r);
   if(fd<dist) dist=fd;
   return {dist:Math.max(dist,.01), hx:ox+dx*dist, hy:oy+dy*dist};
+}
+/* 穿墙判定专用:带门处理、不算叉车,返回第一面实墙的 {dist,tile,gx,gy};
+   给 skipGX/skipGY 时跳过该格(已穿的那面墙),报第二面墙 */
+function castRayInfo(ox,oy,ang,skipGX,skipGY){
+  var dx=Math.cos(ang), dy=Math.sin(ang);
+  var mx=Math.floor(ox), my=Math.floor(oy);
+  var ddx=Math.abs(1/(dx||1e-9)), ddy=Math.abs(1/(dy||1e-9));
+  var sx=dx<0?-1:1, sy=dy<0?-1:1;
+  var sdx=(dx<0?(ox-mx):(mx+1-ox))*ddx, sdy=(dy<0?(oy-my):(my+1-oy))*ddy;
+  var side=0, guard=0;
+  while(guard++<64){
+    if(sdx<sdy){ sdx+=ddx; mx+=sx; side=0; } else { sdy+=ddy; my+=sy; side=1; }
+    if(mx<0||my<0||mx>=MAP_W||my>=MAP_H) return {dist:64, tile:1, gx:mx, gy:my};
+    if(mx===skipGX&&my===skipGY) continue;
+    var gt=GRID[my][mx];
+    if(gt===17){ var dh=doorRayHit(ox,oy,dx,dy); if(dh) return {dist:dh.dist, tile:17, gx:mx, gy:my}; continue; }
+    if(gt) return {dist:(side===0? sdx-ddx : sdy-ddy), tile:gt, gx:mx, gy:my};
+  }
+  return {dist:64, tile:0, gx:mx, gy:my};
 }
 function killEnemy(e){
   e.hp=0; e.deathT=0; e.flashT=0; /* 倒地用正常精灵,别一直顶着闪白帧 */ P.kills++; P.score+=e.def.score + (e.zone==='head'?50:0);
@@ -2228,7 +2355,7 @@ function die(){
 }
 
 /* ---------------- enemies ---------------- */
-var SPAWN_POINTS=[[2,2],[15,2],[2,9],[15,9],[2,15],[15,15],[11,2],[5,6]];
+var SPAWN_POINTS=[[2,2],[16,2],[2,9],[15,9],[2,15],[15,15],[11,2],[5,6]];
 function spawnEnemy(){
   /* 优先刷在玩家 6~15 格内:开局几秒就接上火,不再对着空地图发呆 */
   var near=[], far=[];
@@ -2471,6 +2598,7 @@ requestAnimationFrame(loop);
   if(game.state==='play'||game.state==='between'){
     game.elapsed+=dt;
     updatePlayer(dt,now);
+    updateDoor(dt);
     enemies.forEach(function(e){ updateEnemy(e,dt,now); });
     enemies=enemies.filter(function(e){ return e.hp>0 || e.flashT>-1; });
     for(var i=enemies.length-1;i>=0;i--) if(enemies[i].hp<=0){ enemies[i].deathT=(enemies[i].deathT||0)+dt; if(enemies[i].deathT>.8) enemies.splice(i,1); }
@@ -2563,9 +2691,15 @@ function updatePlayer(dt,now){
   if((keys['KeyW']||keys['ArrowUp']) && fwd>0) P.wHoldT=(P.wHoldT||0)+dt; else P.wHoldT=0;
   var wantSprint=(P.wHoldT>0.25 || touchSprint) && fwd>0 && P.stam>2;
   P.sprinting=!!wantSprint;
-  var speed=(P.crouch?1.5: P.sprinting?4.8:3.0) * (P.ads?.55:1);
+  var speed=(P.crouch?1.5: P.sprinting?4.3:2.7) * (P.ads?.55:1);
   var mag=Math.sqrt(fwd*fwd+str*str)||1;
   P.moving=Math.abs(fwd)+Math.abs(str)>.1;
+  /* 跳跃:空格起跳,重力 -16、起跳速度 5.2,滞空约 0.65 秒;只影响视角高度,不改 2D 碰撞 */
+  if(keys['Space']) startJump();
+  if(P.z>0||P.vz!==0){
+    P.vz-=16*dt; P.z+=P.vz*dt;
+    if(P.z<=0){ P.z=0; if(P.vz<-2.5) SFX.land(); P.vz=0; }
+  }
   /* 枪模惯性:横移时枪身顺势侧倾(strafeLean 平滑跟随横移输入);
      转视角时枪滞后于镜头(turnSway 按每帧转角累积、指数衰减回正);
      机瞄过渡 adsBlend 让持枪位从右下侧持平滑收到画面正中对准星 */
@@ -2631,7 +2765,7 @@ function updatePlayer(dt,now){
     if(P.heal<=0){
       el.band.style.display='none';
       if(P.healKind==='band'){ P.bleed=0; P.hp=Math.min(P.maxhp,P.hp+8); centerMsg('出血已止住',1.2); }
-      else { P.hp=Math.min(P.maxhp,P.hp+45); P.bleed=Math.max(0,P.bleed-1); centerMsg('急救完成',1.2); }
+      else { P.hp=Math.min(P.maxhp,P.hp+45); P.bleed=0; centerMsg('急救完成',1.2); }
       updateVitals();
     }
   }
@@ -2654,6 +2788,7 @@ function startInspect(){
   P.ads=false; updateWeaponHUD();
   P.inspectT=(__GUN3D__.TUNE&&__GUN3D__.TUNE.inspectDur)||1.6;
 }
+function startJump(){ if(P.z<=0 && !P.crouch) P.vz=5.2; }
 function startHeal(kind){
   if(P.heal>0||P.reloading>0||P.switchT>0) return;
   if(kind==='band'){ if(P.bandages<=0){centerMsg('没有绷带了',1.2);return;} if(P.bleed===0&&P.hp>P.maxhp-8){centerMsg('没有需要包扎的伤口',1.2);return;}
@@ -2969,6 +3104,7 @@ bindBtn('tAds',function(){ if(P.switchT>0||P.heldTac>=0) return; P.ads=!P.ads; $
 bindBtn('tReload',function(){startReload();});
 bindBtn('tMed',function(){startMed();});
 bindBtn('tGun',function(){switchWeapon((P.wi+1)%3);});
+bindBtn('tJumpBtn',function(){startJump();});
 bindBtn('tCrouch',function(){P.crouchTog=!P.crouchTog; $('tCrouch').classList.toggle('on',P.crouchTog);});
 bindBtn('tTac',function(){cycleTac();});
 bindBtn('tThrow',function(){throwTac();});
@@ -3124,7 +3260,7 @@ document.addEventListener('keydown',function(e){
   }
   window.addEventListener('click', function(e){ logEv('click', e.target, e.clientX, e.clientY); }, {capture:true, passive:true});
   function mq(q){ try{ return (window.matchMedia && matchMedia(q).matches)? '有':'无'; }catch(err){ return '?'; } }
-  push('<span class="tl-t">诊断</span> 页面已加载 <b>v25</b> · 触点数='+(navigator.maxTouchPoints||0)
+  push('<span class="tl-t">诊断</span> 页面已加载 <b>v27</b> · 触点数='+(navigator.maxTouchPoints||0)
     +' · 粗指针='+mq('(pointer: coarse)')+' 细指针='+mq('(pointer: fine)')
     +' · ontouchstart='+('ontouchstart' in window ? '有':'无'));
   push('点按钮 / 拖摇杆 / 按开火,看下面滚不滚');
@@ -3197,7 +3333,7 @@ requestAnimationFrame(loop);
    调枪位只改下面的 TUNE,不要动逻辑;现场调参见 pc-build/NOTES.md。
    ============================================================ */
 (function(){
-  var G3D = window.__GUN3D__ = { active:false, ready:false, currentWi:-1, reason:'', rigs:[null,null,null], muzzle:[null,null,null] };
+  var G3D = window.__GUN3D__ = { active:false, ready:false, currentWi:-1, reason:'', rigs:[null,null,null], muzzle:[null,null,null], _ampS:1, _mvB:0, _lt:0, _zS:0, _zV:0 };
   /* ---- 调参区:全部可调常量都在这里 ---- */
   var TUNE = G3D.TUNE = {
     targetLen: [0.23, 1.05, 0.95],      /* 枪身全长(米):手枪/步枪/霰弹枪,沿枪管方向;步枪 0.85→1.05,显大显长 */
@@ -3251,6 +3387,7 @@ requestAnimationFrame(loop);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x8a7a5a, 1.35));
   var key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(1.5, 2.5, 1.5); scene.add(key);
   var fill = new THREE.DirectionalLight(0xcfe0ff, 1.0); fill.position.set(-2, 0.5, 1); scene.add(fill);
+  var rim = new THREE.DirectionalLight(0xffd9a8, 1.15); rim.position.set(-0.6, 1.6, -2.2); scene.add(rim);
 
   /* ---- 枪口火光:十字星形贴片 + 点光(纯圆 blob 在近处会糊成一个大光球) ---- */
   function makeFlashTexture(){
@@ -3394,6 +3531,13 @@ requestAnimationFrame(loop);
     var s = TUNE.targetLen[kind] / Math.max(size.x, 0.001);
     /* 枪管线高度:包围盒顶部往下 18% 处(照门/枪管一线) */
     var barrelY = (box.max.y - 0.18*size.y - center.y) * s;
+    obj.traverse(function(m){
+      if(m.isMesh && m.material && m.material.isMeshStandardMaterial){
+        var mt = m.material;
+        if(mt.roughness!==undefined) mt.roughness = Math.max(0.32, Math.min(0.85, mt.roughness*0.85));
+        if(mt.metalness!==undefined) mt.metalness = Math.min(0.5, mt.metalness+0.12);
+      }
+    });
     var inner = new THREE.Group();
     obj.position.set(-center.x, -center.y, -center.z);
     inner.add(obj);
@@ -3474,9 +3618,20 @@ requestAnimationFrame(loop);
     if(!rig) return;
     var b = P.adsBlend||0;
     var t = performance.now()/1000;
-    var bobAmp = P.ads?0.28:(P.sprinting?1.3:1);
-    var bobX = (P.moving?Math.sin(P.bobT)*1.0*bobAmp:Math.sin(t*1.4)*0.12)*TUNE.bobX;
-    var bobY = (P.moving?Math.cos(P.bobT*2)*0.8*bobAmp:Math.sin(t*2.1)*0.1)*TUNE.bobY;
+    var dt3 = clamp(t-(G3D._lt||t),0,0.05); G3D._lt=t;
+    var ampT = P.ads?0.28:(P.sprinting?1.3:1);
+    G3D._ampS += (ampT-G3D._ampS)*Math.min(1,dt3*10);
+    var bobAmp = G3D._ampS;
+    var mvT = P.moving?1:0;
+    G3D._mvB += (mvT-G3D._mvB)*Math.min(1,dt3*8);
+    var walkBobX = Math.sin(P.bobT)*1.0*bobAmp, idleBobX = Math.sin(t*1.4)*0.12;
+    var walkBobY = Math.cos(P.bobT*2)*0.8*bobAmp, idleBobY = Math.sin(t*2.1)*0.1;
+    var bobX = (idleBobX*(1-G3D._mvB)+walkBobX*G3D._mvB)*TUNE.bobX;
+    var bobY = (idleBobY*(1-G3D._mvB)+walkBobY*G3D._mvB)*TUNE.bobY;
+    /* 跳跃纵向滞后:枪用弹簧跟随眼高 z,起跳时枪沉、落地时回弹 */
+    var zT=(P.z||0), sub=Math.max(1,Math.ceil(dt3/0.016)), sh=dt3/sub;
+    for(var zi=0;zi<sub;zi++){ G3D._zV += (-150*(G3D._zS-zT) - 15*G3D._zV)*sh; G3D._zS += G3D._zV*sh; }
+    var jumpLag=(G3D._zS-zT)*0.25;
     var swayX = (P.stam<25?Math.sin(t*2.7)*(25-P.stam)*0.004:Math.sin(t*1.1)*0.06)*TUNE.bobX;
     var lagYaw = clamp(-(P.turnSway||0),-26,26)*TUNE.swayYaw;
     var kick = (P.recoil||0);
@@ -3513,14 +3668,14 @@ requestAnimationFrame(loop);
     if(showTac){
       /* 手持投掷物:不用机瞄那套,直接手持位 + 抛的动作 */
       px = TUNE.tacPos[0] + bobX + swayX;
-      py = TUNE.tacPos[1] + bobY - dip - healDip - swY + throwY;
+      py = TUNE.tacPos[1] + bobY - dip - healDip - swY + throwY + jumpLag;
       pz = TUNE.tacPos[2] + throwZ;
       pitch = TUNE.tacRot[0] + swRot*0.6 + throwPitch;
       yaw = TUNE.tacRot[1] + lagYaw;
       roll = TUNE.tacRot[2] + (P.strafeLean||0)*TUNE.swayRoll + swRot*0.4;
     } else {
       px = lerp(TUNE.hipPos[w.kind][0], TUNE.adsPos[w.kind][0], b) + bobX + swayX;
-      py = lerp(TUNE.hipPos[w.kind][1], TUNE.adsPos[w.kind][1], b) + bobY - dip - healDip - swY + kick*0.02*(1-b);
+      py = lerp(TUNE.hipPos[w.kind][1], TUNE.adsPos[w.kind][1], b) + bobY - dip - healDip - swY + kick*0.02*(1-b) + jumpLag;
       pz = lerp(TUNE.hipPos[w.kind][2], TUNE.adsPos[w.kind][2], b) + kick*TUNE.kickZ;
       pitch = lerp(TUNE.hipRot[w.kind][0], TUNE.adsRot[w.kind][0], b) + kick*TUNE.kickPitch + swRot*0.6 + inspFl*0.35;
       yaw = lerp(TUNE.hipRot[w.kind][1], TUNE.adsRot[w.kind][1], b) + lagYaw + inspFl*1.1;
