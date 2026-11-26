@@ -50,12 +50,14 @@ npx relay-radar ping 你的中转站地址
 
 <script>
 const $ = id => document.getElementById(id);
+let curP = null;
 function addCard(title) {
   const d = document.createElement('div');
   d.className = 'card';
   d.innerHTML = '<h3>' + title + '</h3><p class="dim">测试中…</p>';
   $('results').appendChild(d);
-  return d.querySelector('p');
+  curP = d.querySelector('p');
+  return curP;
 }
 let WB = null;
 function candBases(base) {
@@ -159,8 +161,12 @@ $('go').onclick = async () => {
     if (!t6ok) { score -= 15; flags.push('捞针失败'); }
     p.innerHTML = '藏的代号：紫水晶-7392，它的答案：' + t6.text + '\n' + (t6ok ? '<span class="pass">通过</span>' : '<span class="fail">没捞到，上下文能力存疑</span>');
   } catch (e) {
-    const p = addCard('连接失败');
-    p.innerHTML = '<span class="fail">请求没打通：' + e.message + '</span>\n常见原因：地址或密钥填错、额度不足、或该站没开跨域（CORS）导致浏览器直连被拦。已自动试过带 /v1 和不带 /v1 两种地址。先去它家操练场确认密钥能用，再回来测。';
+    const p = curP || addCard('连接失败');
+    if (e.message.indexOf('429') >= 0) {
+      p.innerHTML = '<span class="fail">已被对方限流（HTTP 429），验真已停止，不是在跑了。</span>\n免费渠道人太多被挤爆了。等 3-5 分钟再点一次开始验真，不要连点，越点越续限流。';
+    } else {
+      p.innerHTML = '<span class="fail">请求没打通，验真已停止，不是在跑了：' + e.message + '</span>\n常见原因：地址或密钥填错、额度不足、或该站没开跨域（CORS）导致浏览器直连被拦。已自动试过带 /v1 和不带 /v1 两种地址。先去它家操练场确认密钥能用，再回来测。';
+    }
     $('go').disabled = false; $('go').textContent = '开始验真';
     return;
   }
