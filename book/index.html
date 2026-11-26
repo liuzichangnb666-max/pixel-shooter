@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>答案之书 · The Book of Answers</title>
+<meta name="description" content="心里默念一个问题，翻开属于你的那一页。150 页答案，等你来问。">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { min-height:100vh; background:radial-gradient(ellipse at 50% 35%, #1d2440 0%, #0b0e1d 55%, #05060f 100%); color:#e8e2d0; font-family:"Noto Serif SC","Songti SC","STSong",serif; display:flex; flex-direction:column; align-items:center; padding:28px 18px 40px; overflow-x:hidden; }
+  .stars { position:fixed; inset:0; pointer-events:none; opacity:.55; background-image:radial-gradient(1.5px 1.5px at 12% 22%, #fff 50%, transparent 51%),radial-gradient(1px 1px at 82% 12%, #fff 50%, transparent 51%),radial-gradient(1.2px 1.2px at 64% 38%, #ffe9a8 50%, transparent 51%),radial-gradient(1px 1px at 28% 64%, #fff 50%, transparent 51%),radial-gradient(1.4px 1.4px at 92% 58%, #fff 50%, transparent 51%),radial-gradient(1px 1px at 44% 12%, #fff 50%, transparent 51%),radial-gradient(1.2px 1.2px at 6% 82%, #ffe9a8 50%, transparent 51%),radial-gradient(1px 1px at 74% 84%, #fff 50%, transparent 51%); }
+  h1 { font-size:34px; letter-spacing:.35em; text-indent:.35em; color:#e9c979; text-shadow:0 0 24px rgba(233,201,121,.35); margin-top:8px; }
+  .sub { margin-top:10px; font-size:13px; letter-spacing:.3em; text-indent:.3em; color:#9aa3c0; }
+  .hint { margin-top:26px; font-size:14px; color:#b9c0d8; text-align:center; line-height:1.9; }
+  .book { margin-top:22px; width:min(88vw,380px); aspect-ratio:3/4.1; perspective:1200px; cursor:pointer; }
+  .page { position:relative; width:100%; height:100%; border-radius:6px 14px 14px 6px; background:linear-gradient(105deg, #f7efdb 0%, #fdf8ec 45%, #f3ead2 100%); box-shadow:inset 10px 0 24px rgba(120,90,30,.18), inset -2px 0 6px rgba(120,90,30,.12), 0 24px 60px rgba(0,0,0,.55); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:34px 30px; transform-origin:left center; transition:transform .18s ease; }
+  .book:active .page { transform:rotateY(-7deg) scale(.99); }
+  .page.flip { animation:flip .55s ease; }
+  @keyframes flip { 0% { transform:rotateY(0); } 45% { transform:rotateY(-78deg); } 100% { transform:rotateY(0); } }
+  .page .orn { color:#b08d3e; font-size:15px; letter-spacing:.6em; text-indent:.6em; }
+  .answer { margin-top:20px; font-size:27px; line-height:1.65; color:#33302a; text-align:center; font-weight:600; min-height:88px; display:flex; align-items:center; }
+  .pageno { position:absolute; bottom:20px; left:0; right:0; text-align:center; font-size:12px; letter-spacing:.25em; color:#a08c5a; }
+  .cover-text { font-size:19px; color:#6b5a2e; letter-spacing:.2em; line-height:2.1; text-align:center; }
+  button { margin-top:28px; background:transparent; border:1px solid #e9c979; color:#e9c979; font-family:inherit; font-size:15px; letter-spacing:.4em; text-indent:.4em; padding:12px 30px 12px 34px; border-radius:999px; cursor:pointer; transition:all .2s; }
+  button:hover { background:rgba(233,201,121,.12); }
+  .foot { margin-top:30px; font-size:12px; color:#5d6580; letter-spacing:.15em; text-align:center; line-height:2; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<h1>答案之书</h1>
+<div class="sub">THE BOOK OF ANSWERS</div>
+<p class="hint">闭上眼，心里默念一个你想问的问题<br>准备好了，就点开书页</p>
+<div class="book" id="book">
+  <div class="page" id="page">
+    <div class="cover-text">每 一 个 问 题<br>都 有 一 页 在 等 你</div>
+    <div class="pageno">共 150 页</div>
+  </div>
+</div>
+<button id="again" style="display:none">再 问 一 次</button>
+<div class="foot">答案仅供一乐 · 真正的决定还是你自己做<br>把链接发给朋友，一起翻一翻</div>
+<script>
+var ANSWERS = ["是的，就是现在", "毫无疑问", "大胆去做", "答案是肯定的", "值得一试", "时机刚刚好", "相信你的直觉", "会成功的", "放心吧，没问题", "这件事有戏", "去吧，别回头", "你已经准备好了", "好运站在你这边", "结果会比你想的好", "坚持到底", "是时候行动了", "不要怀疑自己", "这条路走得通", "贵人就在身边", "会有惊喜", "答案就在你心里", "勇敢一点", "一切顺利", "值得等待的好结果", "你的努力会有回报", "天时地利人和", "就这么定了", "没错，就是它", "机会难得，抓住它", "会有人帮你", "柳暗花明", "心想事成", "稳了", "放心大胆地选", "这是对的选择", "未来可期", "好事将近", "你的坚持是对的", "会有转机", "一拍即合", "不是现在", "再等等", "恐怕不行", "别抱太大希望", "这条路走不通", "先放一放", "你心里其实已经知道答案了", "换个方向试试", "不要冲动", "这件事没那么简单", "时机未到", "别为它浪费时间", "答案是否定的", "暂时放弃吧", "风险太大了", "不要指望别人", "这不是你想要的", "停下来想想", "别勉强自己", "有些事强求不来", "让它过去吧", "不要回头", "这次就算了", "别把鸡蛋放一个篮子里", "你值得更好的", "不是这一个", "再想想，别急着答应", "恐怕要让你失望了", "别轻易相信", "保持距离比较好", "问问你最信任的人", "答案藏在细节里", "先睡一觉再说", "顺其自然", "别急，慢慢来", "过段时间再问", "你需要更多信息", "听听反对的声音", "先把手头的事做完", "答案会自己找上门", "保持耐心", "换个角度看问题", "也许没有标准答案", "跟着感觉走", "先试试水深", "不要把话说太满", "给彼此一点空间", "事情还在变化中", "观察一阵子", "你的第一个念头是对的", "别想太多，做就对了", "问问未来的你", "答案在下一页", "保持神秘感", "先照顾好自己", "别替别人做决定", "这件事急不得", "学会放手", "沉默是最好的回答", "你需要一次长谈", "把问题说出来", "答案一半在你手里", "别低估时间的力量", "先迈出一小步", "也许会，也许不会", "重要的是过程", "别比较，跟自己比", "答案不重要，态度重要", "再给它一次机会", "去散个步再回来想", "你比想象中更强大", "把心放宽", "有些答案需要等", "别怕麻烦别人", "先听完再判断", "答案正在路上", "保持好奇心", "不要预设结果", "随缘吧", "你会找到办法的", "先从最简单的开始", "别让恐惧替你决定", "问问你妈妈", "今晚的梦会告诉你", "先把觉睡好", "别在深夜做决定", "等风来", "你其实不缺答案，缺的是勇气", "再确认一次再行动", "把期待放低一点", "事情没你想的那么糟", "给时间一点时间", "答案在你笑的时候", "别较劲，松一松", "先学会拒绝", "这件事可以商量", "保持开放的心态", "你会等到想要的回应", "不妨直说", "答案比你想的近", "先完成，再完美", "别让过去绊住你", "去见一面就知道了", "把问题写下来", "答案在行动里", "慢慢来，比较快", "你的运气正在攒着", "别急着下结论", "值得再观察一周", "先问问价格"];
+var page = document.getElementById('page');
+var again = document.getElementById('again');
+function ask() {
+  var i = Math.floor(Math.random() * ANSWERS.length);
+  page.classList.remove('flip'); void page.offsetWidth; page.classList.add('flip');
+  setTimeout(function(){
+    page.innerHTML = '<div class="orn">✦ ✦ ✦</div><div class="answer">' + ANSWERS[i] + '</div><div class="pageno">第 ' + (i+1) + ' 页 · 共 150 页</div>';
+  }, 240);
+  again.style.display = 'block';
+}
+document.getElementById('book').addEventListener('click', ask);
+again.addEventListener('click', ask);
+</script>
+</body>
+</html>
