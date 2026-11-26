@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模型掺水验真</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f1115; color: #e8eaf0; padding: 16px; max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: #9aa3b2; font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
+  label { display: block; font-size: 13px; color: #9aa3b2; margin: 12px 0 6px; }
+  input { width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid #2a2f3a; background: #171a21; color: #e8eaf0; font-size: 15px; }
+  button { width: 100%; margin-top: 18px; padding: 13px; border: none; border-radius: 10px; background: #3b82f6; color: #fff; font-size: 16px; font-weight: 600; }
+  button:disabled { background: #2a2f3a; color: #9aa3b2; }
+  .card { background: #171a21; border: 1px solid #2a2f3a; border-radius: 12px; padding: 12px 14px; margin-top: 12px; }
+  .card h3 { font-size: 15px; margin-bottom: 6px; }
+  .card p { font-size: 13px; color: #c6ccd8; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+  .pass { color: #4ade80; } .fail { color: #f87171; } .warn { color: #fbbf24; } .dim { color: #9aa3b2; }
+  #verdict { display: none; text-align: center; padding: 18px; }
+  #verdict .big { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  #verdict .score { font-size: 14px; color: #9aa3b2; }
+  .note { font-size: 12px; color: #7c8494; margin-top: 16px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<h1>模型掺水验真</h1>
+<p class="sub">填中转站的地址、密钥和要验的模型名，一键跑 6 项指纹测试：接口回执、身份自述、逻辑陷阱、约束跟随、数数、大海捞针。结果是初筛信号，不是铁证。</p>
+
+<label>接口地址 Base URL（如 https://xxx.com/v1）</label>
+<input id="base" placeholder="https://api.example.com/v1">
+<label>API 密钥</label>
+<input id="key" type="password" placeholder="sk-...">
+<label>模型名（先点右边的按钮自动拉列表，再点选或输入搜索）</label>
+<div style="display:flex;gap:8px;"><input id="model" list="modellist" placeholder="claude-sonnet-4.5" style="flex:1;"><button id="fetchm" style="width:auto;margin-top:0;padding:0 16px;font-size:14px;">拉取模型列表</button></div>
+<datalist id="modellist"></datalist>
+<p id="mstat" class="dim" style="font-size:12px;margin-top:6px;"></p>
+<button id="go">开始验真</button>
+
+<div id="verdict" class="card"><div class="big" id="vtext"></div><div class="score" id="vscore"></div></div>
+<div id="results"></div>
+
+<p class="note">注意：1）密钥只在你手机浏览器里直连对方接口，不经过任何第三方。2）如果报错连不上，多半是那家站没开跨域（CORS），不代表它有问题，换它家自带操练场手动问也行。3）每项测试都会真实调用接口，会消耗少量额度。</p>
+
+<script>
+const $ = id => document.getElementById(id);
+function addCard(title) {
+  const d = document.createElement('div');
+  d.className = 'card';
+  d.innerHTML = '<h3>' + title + '</h3><p class="dim">测试中…</p>';
+  $('results').appendChild(d);
+  return d.querySelector('p');
+}
+let WB = null;
+function candBases(base) {
+  const b = base.replace(/\/+$/, '');
+  if (WB) return [WB];
+  return b.endsWith('/v1') ? [b] : [b + '/v1', b];
+}
+async function fetchFirst(base, path, opts) {
+  let lastErr = null;
+  for (const b of candBases(base)) {
+    try { const r = await fetch(b + path, opts); WB = b; return r; }
+    catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('连不上');
+}
+async function callAPI(base, key, model, prompt, maxTokens) {
+  const t0 = Date.now();
+  const r = await fetchFirst(base, '/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+    body: JSON.stringify({ model: model, messages: [{ role: 'user', content: prompt }], temperature: 0, max_tokens: maxTokens || 600 })
+  });
+  const ms = Date.now() - t0;
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const data = await r.json();
+  return { data: data, ms: ms, text: (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '' };
+}
+$('fetchm').onclick = async () => {
+  const base = $('base').value.trim(), key = $('key').value.trim();
+  if (!base || !key) { alert('先填接口地址和密钥'); return; }
+  $('mstat').textContent = '拉取中…';
+  try {
+    const r = await fetchFirst(base, '/models', { headers: { 'Authorization': 'Bearer ' + key } });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    const list = (data.data || []).map(m => m.id).filter(Boolean);
+    if (!list.length) throw new Error('列表为空');
+    $('modellist').innerHTML = list.map(id => '<option value="' + id + '">').join('');
+    $('mstat').textContent = '拉到 ' + list.length + ' 个模型，点上面的框就能选，也可以打字搜。';
+  } catch (e) {
+    $('mstat').textContent = '拉取失败（' + e.message + '）。可能这家没开放模型列表接口，那就手动把模型名打进去测。';
+  }
+};
+$('go').onclick = async () => {
+  const base = $('base').value.trim(), key = $('key').value.trim(), model = $('model').value.trim();
+  if (!base || !key || !model) { alert('三项都要填'); return; }
+  $('go').disabled = true; $('go').textContent = '验真中…';
+  $('results').innerHTML = ''; $('verdict').style.display = 'none';
+  let score = 100; const flags = [];
+  try {
+    // T1 接口回执
+    let p = addCard('1 · 接口回执（最硬的证据）');
+    const t1 = await callAPI(base, key, model, '你好，只回复两个字：收到', 50);
+    const retModel = t1.data.model || '(无)';
+    const verOf = s => { const m = String(s).match(/(\d+)[\.\-](\d+)/); return m ? m[1] + '.' + m[2] : null; };
+    const wantVer = verOf(model), retVer = verOf(retModel);
+    let t1bad = false;
+    if (wantVer && retVer && wantVer !== retVer) { t1bad = true; score -= 50; flags.push('回执版本对不上'); }
+    p.innerHTML = '你请求的模型：' + model + '\n接口实际回执：' + retModel + '\n响应耗时：' + (t1.ms / 1000).toFixed(1) + ' 秒\n' +
+      (t1bad ? '<span class="fail">回执里的版本号和你要的对不上，这是掺水的强信号。</span>' : '<span class="pass">回执版本号一致（也可能被站方改写，仅供参考）。</span>');
+    // T2 身份自述
+    p = addCard('2 · 身份自述');
+    const t2 = await callAPI(base, key, model, '请准确回答三项，不要解释，不要谦虚：1）你的模型名称和版本号 2）开发公司 3）知识截止日期。用一行一项的格式。', 300);
+    let t2bad = false;
+    if (wantVer) {
+      const vers = t2.text.match(/(\d+)\.(\d+)/g) || [];
+      if (vers.length && !vers.includes(wantVer) && /(sonnet|opus|haiku|claude|gpt|gemini|deepseek)/i.test(t2.text)) { t2bad = true; score -= 40; flags.push('自述版本矛盾'); }
+    }
+    p.innerHTML = t2.text + '\n' + (t2bad ? '<span class="fail">它自述的版本和你点的版本矛盾，强信号。</span>' : '<span class="dim">自述可以被系统提示词伪造，只作辅证。</span>');
+    // T3 逻辑陷阱
+    p = addCard('3 · 逻辑陷阱题');
+    const t3 = await callAPI(base, key, model, '一本书和一支笔一共11元，书比笔贵10元。请问笔多少钱？只回答数字和单位，不要解释。', 100);
+    const t3ok = /0\.5|0\.50|\.5元|5角|0.5 元/.test(t3.text) && !/1元|1 元/.test(t3.text.replace('11元','').replace('10元',''));
+    if (!t3ok) { score -= 10; flags.push('逻辑题翻车'); }
+    p.innerHTML = '它的答案：' + t3.text + '\n正确答案：0.5元\n' + (t3ok ? '<span class="pass">通过</span>' : '<span class="fail">答错，能力存疑</span>');
+    // T4 约束跟随
+    p = addCard('4 · 约束跟随（便宜模型最容易露馅）');
+    const t4 = await callAPI(base, key, model, '用恰好4句话介绍长城。硬性要求：每一句都必须以“长”字开头；全文不得出现“的”字；总字数在60到80字之间。直接输出这4句话，不要任何解释。', 300);
+    const clean = t4.text.replace(/\s/g, '');
+    const sents = clean.split('。').filter(s => s.length > 0);
+    const c1 = sents.length === 4, c2 = sents.every(s => s.startsWith('长')), c3 = !clean.includes('的'), c4 = clean.length >= 60 && clean.length <= 80;
+    const t4n = [c1, c2, c3, c4].filter(Boolean).length;
+    score -= (4 - t4n) * 5; if (t4n < 4) flags.push('约束跟随丢分 ' + t4n + '/4');
+    p.innerHTML = t4.text + '\n——\n恰好4句：' + (c1 ? '✓' : '✗') + '　每句长字开头：' + (c2 ? '✓' : '✗') + '　无“的”字：' + (c3 ? '✓' : '✗') + '　总字数' + clean.length + '（60-80）：' + (c4 ? '✓' : '✗');
+    // T5 数数
+    p = addCard('5 · 数数');
+    const s5 = '在人山人海的人群里，那个人不是别人眼里的人上人。';
+    const trueN = (s5.match(/人/g) || []).length;
+    const t5 = await callAPI(base, key, model, '数一下这句话里“人”字出现了几次，只回答一个数字：' + s5, 50);
+    const gotN = parseInt((t5.text.match(/\d+/) || ['-1'])[0], 10);
+    const t5ok = gotN === trueN;
+    if (!t5ok) { score -= 10; flags.push('数数错误'); }
+    p.innerHTML = '正确答案：' + trueN + ' 次，它的答案：' + t5.text + '\n' + (t5ok ? '<span class="pass">通过</span>' : '<span class="fail">数错了</span>');
+    // T6 大海捞针
+    p = addCard('6 · 长文捞针（测上下文）');
+    const filler = '今天天气晴朗，我们去公园散步，看到了很多花和树，听到了鸟儿的歌声，心情非常愉快。';
+    let hay = filler.repeat(45);
+    hay = hay.slice(0, 900) + '【代号：紫水晶-7392】' + hay.slice(900);
+    const t6 = await callAPI(base, key, model, '下面是一段长文本，里面藏了一个代号，格式是“某某某-数字”。请只输出那个代号，不要输出任何其他内容。\n\n' + hay, 100);
+    const t6ok = t6.text.includes('紫水晶-7392');
+    if (!t6ok) { score -= 15; flags.push('捞针失败'); }
+    p.innerHTML = '藏的代号：紫水晶-7392，它的答案：' + t6.text + '\n' + (t6ok ? '<span class="pass">通过</span>' : '<span class="fail">没捞到，上下文能力存疑</span>');
+  } catch (e) {
+    const p = addCard('连接失败');
+    p.innerHTML = '<span class="fail">请求没打通：' + e.message + '</span>\n常见原因：地址或密钥填错、额度不足、或该站没开跨域（CORS）导致浏览器直连被拦。已自动试过带 /v1 和不带 /v1 两种地址。先去它家操练场确认密钥能用，再回来测。';
+    $('go').disabled = false; $('go').textContent = '开始验真';
+    return;
+  }
+  if (score < 0) score = 0;
+  const v = $('verdict'); v.style.display = 'block';
+  $('vtext').textContent = score >= 80 ? '疑似真货' : (score >= 50 ? '存疑，再测测' : '高度疑似掺水');
+  $('vtext').style.color = score >= 80 ? '#4ade80' : (score >= 50 ? '#fbbf24' : '#f87171');
+  $('vscore').textContent = '初筛得分 ' + score + ' / 100' + (flags.length ? '　扣分项：' + flags.join('、') : '　无扣分项');
+  v.scrollIntoView({ behavior: 'smooth' });
+  $('go').disabled = false; $('go').textContent = '再测一次';
+};
+</script>
+</body>
+</html>
