@@ -40,6 +40,12 @@
 <div id="verdict" class="card"><div class="big" id="vtext"></div><div class="score" id="vscore"></div></div>
 <div id="results"></div>
 
+<div class="card"><h3>专业版：RelayRadar 中转雷达</h3><p>GitHub 上专做中转站验真的开源工具（153 星），盲测指纹比对，还能审计计费有没有注水。在电脑终端跑一行就行，不用装：
+
+npx relay-radar ping 你的中转站地址
+
+验真命令和说明看它的仓库：https://github.com/AetherCore-Dev/relay-radar</p></div>
+
 <p class="note">注意：1）密钥只在你手机浏览器里直连对方接口，不经过任何第三方。2）如果报错连不上，多半是那家站没开跨域（CORS），不代表它有问题，换它家自带操练场手动问也行。3）每项测试都会真实调用接口，会消耗少量额度。</p>
 
 <script>
@@ -90,7 +96,7 @@ $('fetchm').onclick = async () => {
     $('modellist').innerHTML = list.map(id => '<option value="' + id + '">').join('');
     $('mstat').textContent = '拉到 ' + list.length + ' 个模型，点上面的框就能选，也可以打字搜。';
   } catch (e) {
-    $('mstat').textContent = '拉取失败（' + e.message + '）。可能这家没开放模型列表接口，那就手动把模型名打进去测。';
+    $('mstat').textContent = '没拉到列表（' + e.message + '）。不少站的令牌查不到模型列表，这不挡验真：直接在上面框里手打模型名，点开始验真就行。';
   }
 };
 $('go').onclick = async () => {
